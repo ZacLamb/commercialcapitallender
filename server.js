@@ -29,7 +29,11 @@ function pick(obj, keys) {
   const flat = {};
   (function walk(o, prefix) {
     if (o && typeof o === "object") {
-      for (const [k, v] of Object.entries(o)) {
+      for (let [k, v] of Object.entries(o)) {
+        // Zapier may forward the whole payload as a JSON string; unwrap it.
+        if (typeof v === "string" && /^\s*\{[\s\S]*\}\s*$/.test(v)) {
+          try { v = JSON.parse(v); } catch {}
+        }
         if (v && typeof v === "object" && !Array.isArray(v)) walk(v, prefix + k + ".");
         else flat[(prefix + k).toLowerCase().replace(/[\s_-]/g, "")] = v;
       }
